@@ -1,7 +1,8 @@
-const http = require("http");
 const fs = require("fs");
-const server = http.createServer((req, res) => {
-  console.log(req.url, req.method, req.headers);
+
+const userRequestHandler = (req, res) => {
+  console.log(req.url, req.method);
+
   if (req.url === "/") {
     res.setHeader("Content-Type", "text/html");
     res.write("<html>");
@@ -22,32 +23,37 @@ const server = http.createServer((req, res) => {
     res.write("</body>");
     res.write("</html>");
     return res.end();
-  } else if (req.url === "/products") {
-    res.setHeader("contnent-type", "text/html");
-    res.write("<html>");
-    res.write("<head><title>Products</title></head>");
-    res.write("<body><h1>Check out our products</h1></body>");
-    res.write("</html>");
-    return res.end();
   } else if (
     req.url.toLowerCase() === "/submit-details" &&
     req.method == "POST"
   ) {
+    const body = [];
     req.on("data", (chunk) => {
       console.log(chunk);
+      body.push(chunk);
     });
-    fs.writeFileSync("user.txt", "Varadraj Velhal ");
+    req.on("end", () => {
+      const fullBody = Buffer.concat(body).toString();
+      console.log(fullBody);
+      const params = new URLSearchParams(fullBody);
+      // const bodyObject = {};
+      // for (const [key, val] of params.entries()) {
+      //   bodyObject[key] = val;
+      // }
+      const bodyObject = Object.fromEntries(params);
+      console.log(bodyObject);
+      fs.writeFileSync("user.txt", JSON.stringify(bodyObject));
+    });
+
     res.statusCode = 302;
-    res.setHeader("location", "/");
+    res.setHeader("Location", "/");
   }
-  res.setHeader("contnent-type", "text/html");
+  res.setHeader("Content-Type", "text/html");
   res.write("<html>");
-  res.write("<head><title>My name</title></head>");
-  res.write("<body><h1>Varadraj Rajendra Velhal</h1></body>");
+  res.write("<head><title>Complete Coding</title></head>");
+  res.write("<body><h1>Learning Node JS</h1></body>");
   res.write("</html>");
   res.end();
-});
-const port = 3000;
-server.listen(port, () => {
-  console.log(`Server running on address http://localhost:${port}`);
-});
+};
+
+module.exports = userRequestHandler;
