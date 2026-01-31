@@ -21,6 +21,5 @@ hostRouter.post("/add-home", (req, res) => {
   res.render("homeAdded", { pageTitle: "Home Added Successfully" });
 });
 
-// ✅ exporting BOTH correctly
 exports.hostRouter = hostRouter;
 exports.registeredHomes = registeredHomes;
